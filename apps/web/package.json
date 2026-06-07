@@ -1,0 +1,7 @@
+{
+  "name": "@meshi/web",
+  "version": "0.0.0",
+  "description": "Self-hosted recipe-library frontend for Tandoor Recipes.",
+  "type": "module",
+  "private": true
+}
