@@ -1,0 +1,11 @@
+{
+  "name": "@meshi/server",
+  "version": "0.0.0",
+  "description": "Server and proxy layer for the Meshi web app.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "PORT=3100 bun --hot src/server.ts",
+    "check": "bun tsc --project tsconfig.json --noEmit"
+  }
+}

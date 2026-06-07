@@ -1,12 +1,19 @@
 {
   "name": "meshi",
-  "module": "index.ts",
   "type": "module",
   "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,green --kill-others-on-fail \"bun run dev:server\" \"bun run dev:web\"",
+    "dev:web": "bun run --cwd apps/web dev",
+    "dev:server": "bun run --cwd apps/server dev",
+    "check": "bun run --cwd apps/web check && bun run --cwd apps/server check"
   },
-  "peerDependencies": {
+  "workspaces": [
+    "apps/*"
+  ],
+  "devDependencies": {
+    "@types/bun": "latest",
+    "concurrently": "^10.0.3",
     "typescript": "^5"
   }
 }

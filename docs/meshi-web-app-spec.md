@@ -58,8 +58,7 @@ It should provide:
 - Instructions
 - Serving-size adjustments
 - Recipe source links
-- Personal recipe categorization
-- Lightweight ingredient sourcing information
+- Recipe categorization based on Tandoor metadata
 
 ### Tandoor Backend
 
@@ -94,6 +93,8 @@ The existing Tandoor interface remains available for workflows that are not init
 
 The custom frontend should be distributed as a separate container.
 
+The Meshi container should run the Bun server layer in production. The React/Vite app is a build-time artifact: Vite produces static browser assets, and the Bun server serves those built files while also proxying Tandoor API and media requests. Vite should not run as a production service.
+
 Two deployment modes should be supported.
 
 ### Existing Tandoor Instance
@@ -116,7 +117,7 @@ The Tandoor backend should remain an upstream dependency rather than vendored so
 The recommended deployment exposes the custom frontend and Tandoor backend through a shared origin.
 
 ```text
-/              → Custom frontend
+/              → Meshi React app served by the Bun server
 /api/*         → Tandoor API
 /media/*       → Tandoor media
 ```
@@ -144,6 +145,8 @@ The frontend should remain API-driven and must not access the Tandoor database d
 
 ## Initial Product Scope
 
+The initial product should stay tightly aligned with Tandoor's existing data model. Tandoor's REST API and OpenAPI schema are the authoritative contract for the first implementation phase. The frontend should avoid introducing a separate application database or sidecar metadata store until a concrete product need justifies it.
+
 ### Recipe Library
 
 The main page should provide:
@@ -165,13 +168,13 @@ Each recipe page should provide:
 - Instructions
 - Serving-size adjustment
 - Tags
-- Personal notes
+- Notes already available through Tandoor, if present
 - Source URL
-- Specialty ingredient indicators
+- Recipe metadata already available through Tandoor
 
 ### Lightweight Ingredient Sourcing
 
-The application should support durable sourcing metadata for ingredients, such as:
+Durable ingredient sourcing metadata is deferred beyond the initial product scope. The first implementation should not introduce a separate store for:
 
 - Preferred store
 - Store section
@@ -179,13 +182,15 @@ The application should support durable sourcing metadata for ingredients, such a
 - Whether the ingredient is commonly stocked
 - Whether the ingredient requires a specialty shopping trip
 
-This is intentionally distinct from exact inventory management.
+If Tandoor already exposes useful ingredient, food, keyword, supermarket-category, or shopping-list data through its API, the frontend may display that data. It should not create a parallel sourcing model yet. This remains intentionally distinct from exact inventory management.
 
 ## Data Ownership
 
 Tandoor should remain the source of truth for recipe-domain data.
 
-Any application-specific metadata that does not fit naturally into Tandoor should be stored separately and keyed to Tandoor entity identifiers.
+For the initial implementation, Meshi should treat Tandoor's API schema as the application's data schema. Recipe fields, ingredients, steps, tags, media, notes, source links, and authentication behavior should be modeled from the OpenAPI contract rather than from a Meshi-owned persistence layer.
+
+Application-specific metadata that does not fit naturally into Tandoor should be deferred until a later phase. If that need becomes concrete, the metadata can be stored separately and keyed to Tandoor entity identifiers.
 
 Examples include:
 
@@ -196,7 +201,7 @@ Examples include:
 - Preferred ingredient source
 - Store-specific notes
 
-This separation avoids modifying Tandoor internals prematurely.
+This deferral keeps the first version focused on being a better everyday Tandoor reader/browser. It also avoids creating a second recipe system before the product proves which additional metadata is actually worth owning.
 
 ## Compatibility Strategy
 
@@ -231,6 +236,7 @@ Potential future enhancements include:
 - Recipe import directly from the custom frontend
 - Lightweight recipe editing
 - Shopping-list generation
+- Sidecar metadata for recipe ratings, repeat-cook status, and sourcing notes
 - Ingredient cross-reference pages
 - Recipe filtering by specialty-store requirements
 - Recipe filtering by effort level
@@ -244,6 +250,6 @@ Build a separate, API-driven frontend rather than forking Tandoor.
 
 Use Tandoor as a headless recipe-management backend and retain the stock Tandoor interface as an administrative console.
 
-Keep custom metadata separate unless a backend change becomes clearly necessary.
+Defer custom metadata storage until a later phase; use Tandoor's API schema as the authoritative initial data model.
 
 Do not implement exact pantry inventory unless the product direction later requires it.
